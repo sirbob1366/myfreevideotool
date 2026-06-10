@@ -118,9 +118,35 @@
     });
   };
 
+  // ============ editor handoff ============
+  // Tool pages park the current file in IndexedDB and jump to /editor/.
+  E.lastFile = null;
+  E.openInEditor = function (file) {
+    file = file || E.lastFile;
+    if (!file) { location.href = '/editor/'; return; }
+    var req = indexedDB.open('mfvt-editor', 1);
+    req.onupgradeneeded = function () {
+      var d = req.result;
+      if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv');
+      if (!d.objectStoreNames.contains('media')) d.createObjectStore('media');
+    };
+    req.onsuccess = function () {
+      var tx = req.result.transaction('kv', 'readwrite');
+      tx.objectStore('kv').put({ blob: file, name: file.name }, 'handoff');
+      tx.oncomplete = function () { location.href = '/editor/?handoff=1'; };
+      tx.onerror = function () { location.href = '/editor/'; };
+    };
+    req.onerror = function () { location.href = '/editor/'; };
+  };
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.open-editor');
+    if (btn) { e.preventDefault(); E.openInEditor(); }
+  });
+
   // ============ metadata probe ============
   // Resolves { url, duration, width, height, fps (estimated|null), size, name, type, hasVideo }
   E.probeFile = function (file) {
+    E.lastFile = file;
     return new Promise(function (resolve, reject) {
       var url = URL.createObjectURL(file);
       var v = document.createElement('video');
