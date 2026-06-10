@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Online Video Editor — Layers, Timeline, No Watermark | MyFreeVideoTool</title>
+  <meta name="description" content="A real multitrack video editor in your browser: layers, text, music, green screen, subtitles, transitions. 100% on-device — no upload, no watermark, no signup.">
+  <link rel="canonical" href="https://myfreevideotool.com/editor/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://myfreevideotool.com/editor/">
+  <meta property="og:title" content="Free Online Video Editor — Layers, Timeline, No Watermark">
+  <meta property="og:description" content="Multitrack editing, green screen, subtitles and transitions — entirely on your device.">
+  <meta property="og:site_name" content="MyFreeVideoTool">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Free Online Video Editor — Layers, Timeline, No Watermark">
+  <meta name="twitter:description" content="Multitrack editing, green screen, subtitles and transitions — entirely on your device.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/editor.css">
+  <!-- GA under COEP: crossorigin attr makes this a CORS request (googletagmanager serves ACAO:*) -->
+  <script async crossorigin="anonymous" src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX',{transport_type:'beacon'});</script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "MyFreeVideoTool Editor",
+    "url": "https://myfreevideotool.com/editor/",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Free layered multitrack video editor that runs entirely in your browser: video, text, image, audio and shape layers, chroma key, subtitles, transitions, WebM and MP4 export — no upload, no watermark, no account."
+  }
+  </script>
+</head>
+<body class="editor-body">
+
+<div class="ed-root">
+  <!-- top bar -->
+  <div class="ed-top">
+    <a class="ed-logo" href="/" title="MyFreeVideoTool home">
+      <svg viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#ffb443"/><path d="M25 19.5c0-2.3 2.5-3.7 4.5-2.5l17 10.5c1.9 1.2 1.9 3.9 0 5l-17 10.5c-2 1.2-4.5-.2-4.5-2.5z" fill="#1a1206"/></svg>
+      <span>Editor</span>
+    </a>
+    <div class="sep"></div>
+    <div class="qa-bar">
+      <span style="font-size:10px;color:var(--e-ink2);letter-spacing:.08em;flex:none">I JUST WANT TO…</span>
+      <button class="qa-btn" data-qa="trim" type="button">✂ Trim</button>
+      <button class="qa-btn" data-qa="music" type="button">♪ Add music</button>
+      <button class="qa-btn" data-qa="subtitles" type="button">≡ Add subtitles</button>
+      <button class="qa-btn" data-qa="meme" type="button">😂 Meme</button>
+      <button class="qa-btn" data-qa="vertical" type="button">📱 Resize for TikTok/Reels</button>
+    </div>
+    <div class="top-actions">
+      <select id="canvasPreset" class="ed-btn" title="Canvas" style="appearance:auto">
+        <option value="16:9">16:9 · 1080p</option>
+        <option value="9:16">9:16 · vertical</option>
+        <option value="1:1">1:1 · square</option>
+        <option value="4:5">4:5 · portrait</option>
+      </select>
+      <button class="ed-btn ed-btn--sm" id="btnUndo" title="Undo (Ctrl+Z)" type="button">↩</button>
+      <button class="ed-btn ed-btn--sm" id="btnRedo" title="Redo (Ctrl+Shift+Z)" type="button">↪</button>
+      <button class="ed-btn ed-btn--amber" id="btnExport" type="button">Export</button>
+    </div>
+  </div>
+
+  <!-- main -->
+  <div class="ed-main">
+    <div class="ed-left">
+      <div class="ed-rail-title">Media</div>
+      <div class="media-bin">
+        <button class="media-add" id="mediaAdd" type="button">+ Add video, audio or images<br><span style="font-size:10px;opacity:.7">or drop files anywhere — nothing uploads</span></button>
+        <input type="file" id="mediaFile" accept="video/*,audio/*,image/*" multiple style="display:none">
+        <div id="mediaItems"></div>
+      </div>
+      <div class="ed-rail-title">Layers</div>
+      <div class="layer-list" id="layerList"></div>
+      <div class="add-layer-row">
+        <button class="ed-btn ed-btn--sm" id="addText" type="button">+ Text</button>
+        <button class="ed-btn ed-btn--sm" id="addShape" type="button">+ Shape</button>
+      </div>
+    </div>
+
+    <div class="ed-center">
+      <div class="ed-preview-wrap">
+        <div class="ed-canvas-holder">
+          <canvas id="previewCanvas"></canvas>
+          <div class="ed-canvas-overlay"></div>
+        </div>
+      </div>
+      <div class="ed-transport">
+        <button class="t-btn" id="tBack" title="Frame back (←)" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 18l-6-6 6-6"/><path d="M19 18l-6-6 6-6"/></svg></button>
+        <button class="t-btn t-btn--play" id="tPlay" title="Play/pause (space)" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.54.84l10-6.5a1 1 0 0 0 0-1.68l-10-6.5A1 1 0 0 0 8 5.5z"/></svg></button>
+        <button class="t-btn" id="tFwd" title="Frame forward (→)" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 18l6-6-6-6"/><path d="M5 18l6-6-6-6"/></svg></button>
+        <span class="t-time" id="tTime"><b>00:00.0</b> <span>/ 00:00.0</span></span>
+      </div>
+    </div>
+
+    <div class="ed-right">
+      <div class="prop-tabs">
+        <button class="prop-tab active" data-tab="props" type="button">Properties</button>
+        <button class="prop-tab" data-tab="subs" type="button">Subtitles</button>
+      </div>
+      <div class="prop-body" id="propBody"></div>
+    </div>
+  </div>
+
+  <!-- timeline dock -->
+  <div class="ed-dock">
+    <div class="tl-toolbar">
+      <button class="ed-btn ed-btn--sm" type="button" onclick="EdTimeline.split()" title="Split at playhead (S)">✂ Split</button>
+      <button class="ed-btn ed-btn--sm" type="button" onclick="EdTimeline.duplicate()" title="Duplicate (Ctrl+D)">⧉ Duplicate</button>
+      <input type="range" class="tl-zoom prow-zoom" id="tlZoom" min="8" max="400" value="60" title="Zoom (Ctrl+scroll)">
+      <span class="hint">drag clips · edges trim · vertical restacks · S split · I/O loop · alt disables snap · ctrl+z undo</span>
+    </div>
+    <div class="tl-scroll">
+      <div class="tl-inner">
+        <div class="tl-ruler"><canvas height="24"></canvas></div>
+        <div class="tl-loop"></div>
+        <div class="tl-tracks"></div>
+        <div class="tl-playhead"></div>
+        <div class="snap-guide" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- export dialog -->
+<div class="ed-dialog-back" id="exportDialog">
+  <div class="ed-dialog">
+    <h3>Export</h3>
+    <div class="prow"><label>Format</label>
+      <select id="expFmt">
+        <option value="mp4">MP4 · H.264 — most compatible</option>
+        <option value="webm">WebM · VP9 — fast</option>
+      </select>
+    </div>
+    <div class="prow"><label>Resolution</label>
+      <select id="expRes">
+        <option value="source">Project resolution</option>
+        <option value="720">720p</option>
+      </select>
+    </div>
+    <p class="note">Export runs at playback speed because every frame is composited on your device — nothing uploads, nothing is watermarked. MP4 adds a conversion pass after rendering.</p>
+    <div id="expProg" style="display:none">
+      <div class="exp-bar"><div class="exp-fill" id="expFill"></div></div>
+      <div class="exp-meta"><span id="expLabel">Rendering…</span><span id="expPct">0%</span></div>
+      <div style="margin-top:12px"><button class="ed-btn ed-btn--danger" id="expCancel" type="button">Cancel export</button></div>
+    </div>
+    <div id="expDone" style="display:none"></div>
+    <div id="expActions" style="margin-top:14px">
+      <button class="ed-btn ed-btn--amber" id="expGo" type="button">Start export</button>
+      <button class="ed-btn" id="expClose" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="resume-banner" id="resumeBanner">
+  <span>Resume your previous session?</span>
+  <button class="ed-btn ed-btn--amber ed-btn--sm" id="resumeYes" type="button">Resume</button>
+  <button class="ed-btn ed-btn--sm" id="resumeNo" type="button">Start fresh</button>
+</div>
+
+<div class="ed-toast"></div>
+
+<script src="/js/video-engine.js"></script>
+<script src="/js/editor/state.js"></script>
+<script src="/js/editor/layers.js"></script>
+<script src="/js/editor/compositor.js"></script>
+<script src="/js/editor/timeline.js"></script>
+<script src="/js/editor/exporter.js"></script>
+<script src="/js/editor/ui.js"></script>
+<script src="/js/editor/main.js"></script>
+</body>
+</html>
