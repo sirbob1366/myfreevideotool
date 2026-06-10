@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyFreeVideoTool — Free Online Video Editor & 22 Tools. No Upload, No Watermark.</title>
+  <meta name="description" content="A real multitrack video editor plus 22 focused tools — trim, compress, convert, GIF, green screen, subtitles — running 100% on your device. No upload, no watermark, no account, ever.">
+  <link rel="canonical" href="https://myfreevideotool.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://myfreevideotool.com/">
+  <meta property="og:title" content="MyFreeVideoTool — Free Online Video Editor & 22 Tools">
+  <meta property="og:description" content="Multitrack editing and every video tool you need — 100% on-device. No upload, no watermark, no account.">
+  <meta property="og:site_name" content="MyFreeVideoTool">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="MyFreeVideoTool — Free Online Video Editor & 22 Tools">
+  <meta name="twitter:description" content="Multitrack editing and every video tool you need — 100% on-device. No upload, no watermark, no account.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <script>(function(){try{var t=localStorage.getItem('mfvt-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- Google tag (gtag.js) — crossorigin attr required: this site runs cross-origin isolated
+       (COOP/COEP for SharedArrayBuffer / multithreaded FFmpeg). googletagmanager.com serves
+       ACAO:* so a CORS request passes COEP where a plain no-cors script would be blocked. -->
+  <script async crossorigin="anonymous" src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX',{transport_type:'beacon'});</script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "MyFreeVideoTool",
+    "url": "https://myfreevideotool.com/",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires a modern web browser with JavaScript",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Free online video editor with layers, timeline, green screen, subtitles and transitions, plus 22 focused tools — trim, compress, convert, GIF, merge, resize and more — all running entirely on your device with no uploads and no watermarks."
+  }
+  </script>
+</head>
+<body class="home">
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="logo" href="/" aria-label="MyFreeVideoTool home">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#ffb443"/><path d="M25 19.5c0-2.3 2.5-3.7 4.5-2.5l17 10.5c1.9 1.2 1.9 3.9 0 5l-17 10.5c-2 1.2-4.5-.2-4.5-2.5z" fill="#1a1206"/></svg>
+      <span>MyFreeVideoTool</span>
+    </a>
+    <nav class="nav">
+      <a href="/editor/">Editor</a>
+      <a href="/#tools">Tools</a>
+      <a href="/about/">About</a>
+      <a href="/contact/">Contact</a>
+      <button class="theme-toggle" aria-label="Toggle dark mode" type="button">
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge"><span class="pulse"></span>100% ON-DEVICE · 0 UPLOADS · 0 WATERMARKS</div>
+      <h1>Edit video like<br>it's <span class="serif">yours.</span></h1>
+      <p class="lede">A real multitrack editor and 22 precision tools, running entirely in your browser. Competitors upload your 500&nbsp;MB file to their servers, make you wait, then stamp a watermark on the way out. We can't — there's no server to upload to.</p>
+      <div class="controls-row" style="margin:0">
+        <a class="btn btn--primary" href="/editor/">Open Editor — no signup, no watermark, no upload</a>
+        <a class="btn btn--ghost" href="#tools">Browse the tools</a>
+      </div>
+      <div class="hero__stats">
+        <div class="stat"><b data-countup="23">23</b><span>editor + tools</span></div>
+        <div class="stat"><b>0</b><span>bytes uploaded</span></div>
+        <div class="stat"><b>∞</b><span>file size limit</span></div>
+        <div class="stat"><b>$0</b><span>forever</span></div>
+      </div>
+
+      <div class="hero-demo">
+        <span class="demo-tag">live render · generated in your browser right now</span>
+        <canvas id="heroDemo" width="1280" height="560"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCROLL NARRATIVE -->
+  <div class="story">
+    <section class="story-panel">
+      <div class="container">
+        <div>
+          <p class="eyebrow">The wedge</p>
+          <h2>Your video <span class="serif">never</span> uploads.</h2>
+          <p>Every "free online editor" you've tried starts with an upload bar. Minutes of waiting before you can make a single cut, your private footage parked on someone else's server, and a file-size cap to push you onto a paid plan. Our architecture makes all of that impossible: the engine is WebAssembly running in your tab. Drop a file, work instantly.</p>
+        </div>
+        <div class="story-art">
+          <div class="flowlines stagger">
+            <div class="flowline bad"><span class="fi">⏳</span>Them: upload 500 MB… wait… queue… <span class="strike">&nbsp;watermark&nbsp;</span>… download</div>
+            <div class="flowline good"><span class="fi">⚡</span>Us: drop → edit → done. The file never moves.</div>
+            <div class="flowline good"><span class="fi">🔒</span>Private by physics — there is no server to leak from.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="story-panel">
+      <div class="container">
+        <div>
+          <p class="eyebrow">The editor</p>
+          <h2>Every tool. <span class="serif">One</span> timeline.</h2>
+          <p>Video, text, image, audio and shape layers — stack them, trim them, restack them. Green-screen keying on your GPU. Subtitles with SRT import. Transitions at every junction. Fifty levels of undo. The features others paywall, in a timeline that feels like a desktop NLE.</p>
+          <p><a class="btn btn--ghost btn--sm" href="/editor/">Open the editor →</a></p>
+        </div>
+        <div class="story-art">
+          <div class="layer-fan" id="layerFan">
+            <div class="fan-card"><i>T</i>TEXT — "Subscribe" · pop-in · 0:02–0:06</div>
+            <div class="fan-card"><i>▶</i>VIDEO — reaction.mp4 · chroma key · PiP 28%</div>
+            <div class="fan-card"><i>▶</i>VIDEO — gameplay.mp4 · speed 1.5×</div>
+            <div class="fan-card"><i>♪</i>AUDIO — bed.mp3 · −14 dB · fade out</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="story-panel">
+      <div class="container">
+        <div>
+          <p class="eyebrow">The exit</p>
+          <h2>Export without <span class="serif">ransom.</span></h2>
+          <p>No "remove watermark for $24/mo". No 720p ceiling on the free tier. No account wall between you and your own video. Export WebM fast or H.264 MP4 for maximum compatibility — clean, full quality, yours. The only honest cost: rendering runs at playback speed, because every frame is composited on your machine, not ours.</p>
+        </div>
+        <div class="story-art">
+          <div class="flowlines stagger">
+            <div class="flowline bad"><span class="fi">💸</span><span class="strike">&nbsp;Watermark on free exports&nbsp;</span></div>
+            <div class="flowline bad"><span class="fi">💸</span><span class="strike">&nbsp;720p cap until you pay&nbsp;</span></div>
+            <div class="flowline bad"><span class="fi">💸</span><span class="strike">&nbsp;Sign up to download&nbsp;</span></div>
+            <div class="flowline good"><span class="fi">✓</span>Full-quality MP4 / WebM. Always free. Always clean.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- TOOL GRID -->
+  <section class="section" id="tools">
+    <div class="container">
+      <h2 class="section-title reveal">One editor. <span class="serif">Twenty-two</span> doorways.</h2>
+      <p class="section-sub reveal">Need just one thing done? Each tool is a focused page that does its job instantly — and hands off to the full editor when you want more.</p>
+
+      <div class="spotlight" id="spotlight">
+        <p class="cat-label"><b>00</b> the editor</p>
+        <div class="tool-grid">
+          <a class="tool-card tool-card--editor reveal" href="/editor/">
+            <div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="13" rx="2"/><path d="M2 20h7m4 0h9"/><path d="M7 8l4 2.5L7 13z" fill="currentColor" stroke="none"/></svg></div>
+            <h3>Full Editor</h3>
+            <p>Layers, timeline, green screen, subtitles, transitions. The whole studio — free.</p>
+          </a>
+        </div>
+
+        <p class="cat-label"><b>01</b> edit</p>
+        <div class="tool-grid">
+          <a class="tool-card reveal" href="/trim-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></svg></div><h3>Trim Video</h3><p>Lossless instant mode or frame-accurate.</p></a>
+          <a class="tool-card reveal" href="/cut-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h6m6 0h6"/><path d="M9 5v14m6-14v14"/></svg></div><h3>Cut Video</h3><p>Remove sections from the middle.</p></a>
+          <a class="tool-card reveal" href="/crop-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2v16a2 2 0 0 0 2 2h16"/><path d="M2 6h16a2 2 0 0 1 2 2v16"/></svg></div><h3>Crop Video</h3><p>Draggable box, aspect locks, thirds grid.</p></a>
+          <a class="tool-card reveal" href="/resize-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></div><h3>Resize Video</h3><p>4K–480p + TikTok/Reels/IG presets.</p></a>
+          <a class="tool-card reveal" href="/rotate-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg></div><h3>Rotate Video</h3><p>90° steps, flips, lossless option.</p></a>
+          <a class="tool-card reveal" href="/merge-videos/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg></div><h3>Merge Videos</h3><p>Drag to reorder, auto-normalized.</p></a>
+          <a class="tool-card reveal" href="/video-speed/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22a10 10 0 1 1 10-10"/><path d="M12 6v6l4 2"/><path d="M19 16l3 3-3 3"/></svg></div><h3>Change Speed</h3><p>0.25×–4× with pitch-corrected audio.</p></a>
+        </div>
+
+        <p class="cat-label"><b>02</b> convert</p>
+        <div class="tool-grid">
+          <a class="tool-card reveal" href="/compress-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v4a1 1 0 0 1-1 1H3"/><path d="M16 3v4a1 1 0 0 0 1 1h4"/><path d="M8 21v-4a1 1 0 0 0-1-1H3"/><path d="M16 21v-4a1 1 0 0 1 1-1h4"/></svg></div><h3>Compress Video</h3><p>Quality slider or "make it under 25 MB".</p></a>
+          <a class="tool-card reveal" href="/convert-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></div><h3>Convert Video</h3><p>MP4, WebM, GIF — batch queue.</p></a>
+          <a class="tool-card reveal" href="/video-to-gif/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M8 10h.01M12 10h.01M16 10h.01"/><path d="M7 15h10"/></svg></div><h3>Video to GIF</h3><p>Palette-optimized, live size estimate.</p></a>
+          <a class="tool-card reveal" href="/extract-audio/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><h3>Video to MP3</h3><p>Extract audio as MP3, WAV or M4A.</p></a>
+        </div>
+
+        <p class="cat-label"><b>03</b> audio &amp; create</p>
+        <div class="tool-grid">
+          <a class="tool-card reveal" href="/mute-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M22 9l-6 6M16 9l6 6"/></svg></div><h3>Mute Video</h3><p>Stream copy — instant, lossless.</p></a>
+          <a class="tool-card reveal" href="/add-music-to-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="13" height="11" rx="2"/><path d="M21 8v8a2.5 2.5 0 1 1-2-2.45V9l-4 1"/></svg></div><h3>Add Music</h3><p>Balance slider, fades, video untouched.</p></a>
+          <a class="tool-card reveal" href="/add-text-to-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg></div><h3>Add Text</h3><p>Drag, time, burn in permanently.</p></a>
+          <a class="tool-card reveal" href="/add-subtitles-to-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M6 14h6M6 17h9"/></svg></div><h3>Add Subtitles</h3><p>SRT/VTT import, styled, burned in.</p></a>
+          <a class="tool-card reveal" href="/add-watermark/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></div><h3>Add Watermark</h3><p>Your logo or text — never ours.</p></a>
+          <a class="tool-card reveal" href="/green-screen/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10c0-1.2-.9-2-2-2h-2a2 2 0 0 1-2-2V6c0-1.1-.9-2-2-2z"/><circle cx="8" cy="10" r="1.4"/><circle cx="12" cy="7" r="1.4"/></svg></div><h3>Green Screen</h3><p>GPU chroma key — free, not paywalled.</p></a>
+          <a class="tool-card reveal" href="/meme-maker/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/></svg></div><h3>Meme Maker</h3><p>Top/bottom text in one click.</p></a>
+          <a class="tool-card reveal" href="/reverse-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h13"/><path d="M8 7l-5 5 5 5"/><path d="M21 5v14"/></svg></div><h3>Reverse Video</h3><p>With optional reversed audio.</p></a>
+          <a class="tool-card reveal" href="/loop-video/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div><h3>Loop Video</h3><p>2–10× repeats or boomerang.</p></a>
+        </div>
+
+        <p class="cat-label"><b>04</b> capture</p>
+        <div class="tool-grid">
+          <a class="tool-card reveal" href="/screen-recorder/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><circle cx="12" cy="10" r="3" fill="currentColor" stroke="none"/></svg></div><h3>Screen Recorder</h3><p>Screen + mic, pause/resume, MP4 out.</p></a>
+          <a class="tool-card reveal" href="/extract-frames/"><div class="tool-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="12" r="3.5"/></svg></div><h3>Extract Frames</h3><p>Full-res stills, burst-to-ZIP.</p></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section section--alt">
+    <div class="container">
+      <h2 class="section-title reveal">How it works</h2>
+      <p class="section-sub reveal">Three steps. No account. Nothing uploaded.</p>
+      <div class="steps stagger">
+        <div class="step"><div class="step__num">01</div><h3>Pick your path</h3><p>The full editor for layered projects, or a focused tool when you need exactly one thing done.</p></div>
+        <div class="step"><div class="step__num">02</div><h3>Drop your file</h3><p>It opens instantly — decoded by your browser, processed by WebAssembly and your GPU. No network involved.</p></div>
+        <div class="step"><div class="step__num">03</div><h3>Export clean</h3><p>Full quality, no watermark, no signup wall. Your video was always yours; it stays that way.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title reveal">Questions, answered</h2>
+      <div class="faq reveal" style="max-width:760px;margin:32px auto 0">
+        <details>
+          <summary>Is my video really never uploaded?</summary>
+          <p>Really never. The editor and every tool run on WebAssembly, Web Audio and WebGL inside your browser tab. Open your network inspector while editing — you'll see no video data leaving. The engine itself downloads once (~32 MB) and is cached; your files stay on your machine.</p>
+        </details>
+        <details>
+          <summary>Where's the catch — watermark, file cap, account?</summary>
+          <p>None of the three, ever. There's no server processing to ration, so there's nothing to paywall. The site is ad-supported.</p>
+        </details>
+        <details>
+          <summary>How big a file can I edit?</summary>
+          <p>There's no imposed limit — capacity is your device's memory. Multi-gigabyte files work; above 2 GB you get a friendly heads-up, not a block.</p>
+        </details>
+        <details>
+          <summary>Why does export take as long as the video?</summary>
+          <p>Honest answer: the editor composites every frame in real time on your device, so a 3-minute project exports in about 3 minutes. Single-tool operations like lossless trimming or muting skip this entirely and finish in seconds.</p>
+        </details>
+        <details>
+          <summary>Does it work on phones and iPads?</summary>
+          <p>Yes — the tools and editor work on iOS Safari and Android Chrome, with touch timeline controls. Heavy exports are faster on a laptop, but nothing is desktop-only.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__brand">
+        <a class="logo" href="/">
+          <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#ffb443"/><path d="M25 19.5c0-2.3 2.5-3.7 4.5-2.5l17 10.5c1.9 1.2 1.9 3.9 0 5l-17 10.5c-2 1.2-4.5-.2-4.5-2.5z" fill="#1a1206"/></svg>
+          <span>MyFreeVideoTool</span>
+        </a>
+        <p class="tagline">A full multitrack editor and 22 focused video tools — all running entirely on your device. No upload wait. No watermark. No account. Ever.</p>
+      </div>
+      <div>
+        <h4>Edit</h4>
+        <ul style="margin-bottom:10px"><li><a href="/editor/" style="color:var(--accent);font-weight:700">✦ Full Editor</a></li></ul>
+        <ul>
+          <li><a href="/trim-video/">Trim Video</a></li>
+          <li><a href="/cut-video/">Cut Video</a></li>
+          <li><a href="/crop-video/">Crop Video</a></li>
+          <li><a href="/resize-video/">Resize Video</a></li>
+          <li><a href="/rotate-video/">Rotate Video</a></li>
+          <li><a href="/merge-videos/">Merge Videos</a></li>
+          <li><a href="/video-speed/">Change Speed</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Convert &amp; Audio</h4>
+        <ul>
+          <li><a href="/compress-video/">Compress Video</a></li>
+          <li><a href="/convert-video/">Convert Video</a></li>
+          <li><a href="/video-to-gif/">Video to GIF</a></li>
+          <li><a href="/extract-audio/">Video to MP3</a></li>
+          <li><a href="/mute-video/">Mute Video</a></li>
+          <li><a href="/add-music-to-video/">Add Music</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Create &amp; Capture</h4>
+        <ul>
+          <li><a href="/add-text-to-video/">Add Text</a></li>
+          <li><a href="/add-watermark/">Add Watermark</a></li>
+          <li><a href="/reverse-video/">Reverse Video</a></li>
+          <li><a href="/loop-video/">Loop Video</a></li>
+          <li><a href="/screen-recorder/">Screen Recorder</a></li>
+          <li><a href="/extract-frames/">Extract Frames</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/privacy/">Privacy Policy</a></li>
+          <li><a href="/terms/">Terms of Service</a></li>
+        </ul>
+        <h4 style="margin-top:20px">More free tools</h4>
+        <ul>
+          <li><a href="https://myfreepdfedit.com" rel="noopener">MyFreePDFEdit</a></li>
+          <li><a href="https://myfreeimagetool.com" rel="noopener">MyFreeImageTool</a></li>
+          <li><a href="https://myfreeaudiotool.com" rel="noopener">MyFreeAudioTool</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">© 2026 MyFreeVideoTool.com — your videos never leave your device.</div>
+  </div>
+</footer>
+
+
+<script src="/js/site.js"></script>
+<script>
+/* HERO DEMO — a scripted, procedurally-generated render of the editor compositing
+   layers in real time. No video file involved; everything is drawn in code. */
+(function () {
+  var cnv = document.getElementById('heroDemo');
+  if (!cnv) return;
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var g = cnv.getContext('2d');
+  var W = cnv.width, H = cnv.height;
+  var t0 = performance.now();
+
+  function loop(now) {
+    var t = ((now - t0) / 1000) % 12; // 12s scripted loop
+
+    // backdrop "video" — drifting cinematic gradient
+    var grad = g.createLinearGradient(0, 0, W, H);
+    var drift = Math.sin(t * 0.5) * 0.12;
+    grad.addColorStop(0, 'hsl(' + (252 + drift * 60) + ', 38%, 14%)');
+    grad.addColorStop(0.55, 'hsl(' + (214 + drift * 40) + ', 42%, 20%)');
+    grad.addColorStop(1, 'hsl(' + (36 + drift * 30) + ', 48%, 22%)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, W, H);
+
+    // sun / bokeh circles parallax
+    for (var i = 0; i < 5; i++) {
+      var bx = (W * 0.18 * i + t * 28 * (i % 2 ? 1 : -1)) % (W + 200) - 100;
+      var by = H * 0.25 + Math.sin(t * 0.6 + i * 2) * 60 + i * 55;
+      g.fillStyle = 'rgba(255,180,67,' + (0.05 + i * 0.012) + ')';
+      g.beginPath();
+      g.arc(bx, by, 60 + i * 26, 0, Math.PI * 2);
+      g.fill();
+    }
+
+    // PiP window scaling in (2s–10s)
+    if (t > 2) {
+      var pin = Math.min(1, (t - 2) / 0.7);
+      var pe = 1 - Math.pow(1 - pin, 3);
+      var pw = 300 * pe, ph = 170 * pe;
+      var px = W - pw - 48, py = 48;
+      g.save();
+      g.shadowColor = 'rgba(0,0,0,0.55)';
+      g.shadowBlur = 30;
+      var pg = g.createLinearGradient(px, py, px + pw, py + ph);
+      pg.addColorStop(0, '#27313f');
+      pg.addColorStop(1, '#10141b');
+      g.fillStyle = pg;
+      g.beginPath();
+      if (g.roundRect) g.roundRect(px, py, pw, ph, 12); else g.rect(px, py, pw, ph);
+      g.fill();
+      g.restore();
+      // "face" placeholder in PiP
+      g.fillStyle = 'rgba(255,255,255,0.16)';
+      g.beginPath();
+      g.arc(px + pw / 2, py + ph * 0.42, ph * 0.2, 0, Math.PI * 2);
+      g.fill();
+      g.beginPath();
+      g.arc(px + pw / 2, py + ph * 1.05, ph * 0.45, Math.PI, 0);
+      g.fill();
+      g.strokeStyle = 'rgba(255,180,67,0.9)';
+      g.lineWidth = 1.6;
+      g.beginPath();
+      if (g.roundRect) g.roundRect(px, py, pw, ph, 12); else g.rect(px, py, pw, ph);
+      g.stroke();
+    }
+
+    // text layer sliding in (3.5s–10.5s)
+    if (t > 3.5 && t < 10.5) {
+      var tin = Math.min(1, (t - 3.5) / 0.6);
+      var tout = t > 9.8 ? Math.max(0, (10.5 - t) / 0.7) : 1;
+      var te = 1 - Math.pow(1 - tin, 3);
+      g.save();
+      g.globalAlpha = tout;
+      g.font = '800 64px ' + getComputedStyle(document.body).fontFamily;
+      g.textAlign = 'left';
+      var tx = 64 + (1 - te) * 120;
+      g.lineWidth = 8;
+      g.lineJoin = 'round';
+      g.strokeStyle = 'rgba(0,0,0,0.85)';
+      g.strokeText('No uploads.', tx, H * 0.56);
+      g.fillStyle = '#fff';
+      g.fillText('No uploads.', tx, H * 0.56);
+      g.font = 'italic 400 64px Georgia, serif';
+      g.strokeText('Ever.', tx, H * 0.56 + 76);
+      g.fillStyle = '#ffb443';
+      g.fillText('Ever.', tx, H * 0.56 + 76);
+      g.restore();
+    }
+
+    // ---- timeline strip at the bottom ----
+    var ty = H - 92;
+    g.fillStyle = 'rgba(10,10,14,0.88)';
+    g.fillRect(0, ty, W, 92);
+    g.strokeStyle = 'rgba(255,255,255,0.08)';
+    g.beginPath(); g.moveTo(0, ty); g.lineTo(W, ty); g.stroke();
+    // clips
+    function clip(x, w, y2, h2, color, label) {
+      g.fillStyle = color;
+      g.beginPath();
+      if (g.roundRect) g.roundRect(x, y2, w, h2, 6); else g.rect(x, y2, w, h2);
+      g.fill();
+      g.fillStyle = 'rgba(255,255,255,0.75)';
+      g.font = '600 10px ui-monospace, monospace';
+      g.fillText(label, x + 8, y2 + 14);
+    }
+    clip(40, W * 0.62, ty + 10, 24, '#1d2733', 'video — main.mp4');
+    clip(W * 0.45, W * 0.3, ty + 10, 24, '#2a1d33', 'pip — reaction.mp4');
+    clip(W * 0.2, W * 0.34, ty + 40, 18, '#33291d', 'text — "No uploads."');
+    clip(40, W * 0.75, ty + 62, 16, '#1d3328', '♪ bed.mp3');
+    // playhead scrubbing across the 12s loop
+    var phx = 40 + (t / 12) * (W - 80);
+    g.strokeStyle = '#ffb443';
+    g.lineWidth = 2;
+    g.shadowColor = 'rgba(255,180,67,0.6)';
+    g.shadowBlur = 8;
+    g.beginPath(); g.moveTo(phx, ty + 4); g.lineTo(phx, H - 6); g.stroke();
+    g.shadowBlur = 0;
+
+    if (!reduced) requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  // amber cursor dot (homepage only)
+  if (!reduced && matchMedia('(pointer: fine)').matches) {
+    var dot = document.createElement('div');
+    dot.className = 'cursor-dot';
+    document.body.appendChild(dot);
+    document.addEventListener('mousemove', function (e) {
+      dot.style.left = e.clientX + 'px';
+      dot.style.top = e.clientY + 'px';
+    }, { passive: true });
+  }
+
+  // spotlight hover across the tool grid
+  var spot = document.getElementById('spotlight');
+  if (spot && matchMedia('(pointer: fine)').matches) {
+    spot.addEventListener('mousemove', function (e) {
+      spot.querySelectorAll('.tool-card').forEach(function (card) {
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      });
+    }, { passive: true });
+  }
+
+  // layer fan reveal
+  var fan = document.getElementById('layerFan');
+  if (fan && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries, io) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('visible'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.3 }).observe(fan);
+  } else if (fan) fan.classList.add('visible');
+})();
+</script>
+</body>
+</html>
