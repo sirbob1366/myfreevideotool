@@ -71,6 +71,8 @@ button { font-family: var(--e-font); }
 }
 .ed-btn--amber:hover { box-shadow: var(--e-glow); border-color: var(--e-amber); }
 .ed-btn--sm { padding: 4px 9px; font-size: 11px; border-radius: 6px; }
+a.ed-btn { display: inline-flex; align-items: center; text-decoration: none; }
+a.ed-btn:hover { text-decoration: none; }
 .ed-btn--danger { color: var(--e-red); }
 
 /* ---------- main split ---------- */

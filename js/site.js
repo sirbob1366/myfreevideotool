@@ -60,6 +60,18 @@
       counters.forEach(function (el) { el.textContent = el.dataset.countup + (el.dataset.suffix || ''); });
     }
 
+    // ----- Support widget (lazy: load after the page is idle; never in the editor) -----
+    if (!document.body.classList.contains('editor-body')) {
+      var loadSupport = function () {
+        var s = document.createElement('script');
+        s.src = '/js/support.js';
+        s.defer = true;
+        document.body.appendChild(s);
+      };
+      if ('requestIdleCallback' in window) requestIdleCallback(loadSupport, { timeout: 4000 });
+      else setTimeout(loadSupport, 2000);
+    }
+
     // ----- Magnetic buttons (subtle cursor-follow, spring back) -----
     if (!reduced && matchMedia('(pointer: fine)').matches) {
       document.querySelectorAll('.btn--primary').forEach(function (el) {
