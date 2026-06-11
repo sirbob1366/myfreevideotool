@@ -63,8 +63,10 @@
       } catch (e) { return null; }
     }
     if (!C.gains[l.id]) {
+      // A media element can back several layers (e.g. after a split): the source
+      // fans out to one gain per layer — never disconnect previous connections,
+      // inactive layers simply have their gain driven to 0.
       var g = ctx.createGain();
-      C.sources[m.id].disconnect();
       C.sources[m.id].connect(g);
       g.connect(C.master);
       if (C.exportDest) g.connect(C.exportDest);
@@ -111,17 +113,19 @@
         var vol = l.muted ? 0 : l.volume * env.alpha;
         g.gain.setTargetAtTime(vol, C.audioCtx.currentTime, 0.03);
       }
-      if (el.playbackRate !== l.speed * S.rate) {
+      if (S.rate > 0 && el.playbackRate !== l.speed * S.rate) {
         try { el.playbackRate = Math.min(4, Math.max(0.25, l.speed * S.rate)); } catch (e) {}
       }
       try { el.preservesPitch = l.pitchCorrect; } catch (e) {}
 
       if (playing && S.rate > 0) {
-        if (Math.abs(el.currentTime - want) > 0.14) el.currentTime = want;
+        // never re-seek an element that is still completing a seek — issuing a
+        // new seek every frame starves the decoder and playback appears frozen
+        if (!el.seeking && Math.abs(el.currentTime - want) > 0.3) el.currentTime = want;
         if (el.paused) el.play().catch(function () {});
       } else {
         if (!el.paused) el.pause();
-        if (Math.abs(el.currentTime - want) > 0.04) { try { el.currentTime = want; } catch (e) {} }
+        if (!el.seeking && Math.abs(el.currentTime - want) > 0.04) { try { el.currentTime = want; } catch (e) {} }
       }
     });
     // pause inactive media
@@ -224,11 +228,30 @@
   }
 
   // ---------- transport ----------
+  // While playing forward, slave the project clock to the first active video
+  // layer's media clock — wall-clock time drifts from the decoder under load,
+  // and chasing that drift with seeks is what made playback stutter.
+  function masterClockTime(t) {
+    var best = null;
+    S.activeAt(t).forEach(function (l) {
+      if (best || l.type !== 'video' || !l.srcId) return;
+      var m = S.media[l.srcId];
+      if (m && m.videoEl && !m.videoEl.paused && !m.videoEl.seeking) best = { l: l, el: m.videoEl };
+    });
+    if (!best) return null;
+    return best.l.start + (best.el.currentTime - best.l.inPoint) / best.l.speed;
+  }
+
   function tick(now) {
     if (!S.playing) return;
     var dt = (now - C.lastTick) / 1000;
     C.lastTick = now;
     S.time += dt * S.rate;
+
+    if (S.rate > 0) {
+      var mt = masterClockTime(S.time);
+      if (mt !== null && Math.abs(mt - S.time) > 0.06) S.time = mt;
+    }
 
     var dur = S.duration();
     if (S.loop && S.time > S.loop.end) S.time = S.loop.start;

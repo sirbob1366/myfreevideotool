@@ -175,7 +175,8 @@
   };
 
   // ---------- media ----------
-  S.addMedia = function (file) {
+  S.addMedia = function (file, opts) {
+    opts = opts || {};
     var id = 'M' + Date.now() + '_' + Math.floor(Math.random() * 1e4);
     var url = URL.createObjectURL(file);
     var kind = /^video\//.test(file.type) ? 'video' : /^audio\//.test(file.type) ? 'audio' : /^image\//.test(file.type) ? 'image' : null;
@@ -192,7 +193,7 @@
         var img = new Image();
         img.onload = function () {
           m.w = img.naturalWidth; m.h = img.naturalHeight; m.imgEl = img;
-          S.media[id] = m; S.emit('media'); S.saveMediaBlob(m); resolve(m);
+          S.media[id] = m; S.emit('media'); if (!opts.noSave) S.saveMediaBlob(m); resolve(m);
         };
         img.onerror = function () { reject(new Error('Could not read image ' + file.name)); };
         img.src = url;
@@ -209,7 +210,7 @@
           m.duration = el.duration;
           if (kind === 'video') { m.w = el.videoWidth; m.h = el.videoHeight; m.videoEl = el; }
           else m.audioEl = el;
-          S.media[id] = m; S.emit('media'); S.saveMediaBlob(m); resolve(m);
+          S.media[id] = m; S.emit('media'); if (!opts.noSave) S.saveMediaBlob(m); resolve(m);
         }, { once: true });
         el.addEventListener('error', function () { clearTimeout(to); reject(new Error('Could not read ' + file.name)); }, { once: true });
       }
@@ -315,7 +316,7 @@
           return idbGet('media', k).then(function (rec) {
             if (!rec) return null;
             var f = new File([rec.blob], rec.name || 'media', { type: rec.blob.type });
-            return S.addMedia(f).then(function (m) {
+            return S.addMedia(f, { noSave: true }).then(function (m) {
               // remap: replace the new id with the saved key
               delete S.media[m.id];
               m.id = k;

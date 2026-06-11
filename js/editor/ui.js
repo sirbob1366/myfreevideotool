@@ -345,12 +345,14 @@
     bindSlide('pVol', function (v) { l.volume = v; });
     bind('pMute', 'click', function () { S.commit('mute'); l.muted = !l.muted; renderProps(); });
     bindSlide('pSpeed', function (v) {
-      // keep media coverage valid: clamp duration after speed change
+      // keep media coverage valid: clamp duration after speed change.
+      // NOTE: no emit here — a layers event re-renders this panel and would
+      // destroy the slider mid-drag; the timeline refreshes on 'change'.
       l.speed = v;
       var m = S.media[l.srcId];
       if (m && m.duration) l.duration = Math.min(l.duration, (m.duration - l.inPoint) / v);
-      S.emit('layers');
     });
+    bind('pSpeed', 'change', function () { S.emit('layers'); });
     bind('pPitch', 'change', function () { l.pitchCorrect = this.checked; });
 
     ['pCl', 'pCr', 'pCt', 'pCb'].forEach(function (id) {

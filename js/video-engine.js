@@ -171,29 +171,39 @@
           duration: v.duration, width: v.videoWidth, height: v.videoHeight,
           hasVideo: v.videoWidth > 0, fps: null
         };
-        // fps estimate via requestVideoFrameCallback (best-effort, ~0.5s of playback)
+        // fps estimate via requestVideoFrameCallback (best-effort, ~0.3s of playback).
+        // The probe element MUST be disposed afterwards — a second decoder on the
+        // same file starves the visible player and makes play() feel dead.
         if (v.requestVideoFrameCallback && meta.hasVideo) {
+          var settled = false;
+          var finish = function () {
+            if (settled) return;
+            settled = true;
+            try { v.pause(); } catch (e) {}
+            try { v.removeAttribute('src'); v.load(); } catch (e) {}
+            resolve(meta);
+          };
           var times = [];
           var raf = function (now, md) {
+            if (settled) return;
             times.push(md.mediaTime);
-            if (times.length < 12 && md.mediaTime < (v.duration || 9)) v.requestVideoFrameCallback(raf);
+            if (times.length < 8 && md.mediaTime < (v.duration || 9)) v.requestVideoFrameCallback(raf);
             else {
-              v.pause();
               var deltas = [];
               for (var i = 1; i < times.length; i++) deltas.push(times[i] - times[i - 1]);
               deltas = deltas.filter(function (d) { return d > 0.001 && d < 0.5; });
-              if (deltas.length >= 4) {
+              if (deltas.length >= 3) {
                 deltas.sort(function (a, b) { return a - b; });
                 meta.fps = Math.round(1 / deltas[Math.floor(deltas.length / 2)]);
               }
-              v.currentTime = 0;
-              resolve(meta);
+              finish();
             }
           };
           v.requestVideoFrameCallback(raf);
-          v.play().catch(function () { resolve(meta); });
-          setTimeout(function () { if (times.length < 12) { try { v.pause(); } catch (e) {} resolve(meta); } }, 2500);
+          v.play().catch(finish);
+          setTimeout(finish, 1200);
         } else {
+          try { v.removeAttribute('src'); v.load(); } catch (e) {}
           resolve(meta);
         }
       });
@@ -268,6 +278,9 @@
   });
 
   E.waveformLane = function (file, canvas) {
+    // decodeAudioData expands the WHOLE file to PCM in memory — skip the
+    // cosmetic waveform for big/long files rather than risk an OOM.
+    if (!file || file.size > 200 * 1048576) return Promise.resolve(false);
     return file.arrayBuffer().then(function (ab) {
       return new Promise(function (resolve, reject) {
         E.getAudioContext().decodeAudioData(ab, resolve, function (e) { reject(e || new Error('no audio')); });

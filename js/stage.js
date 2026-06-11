@@ -22,7 +22,7 @@
     container.innerHTML =
       '<div class="stage-wrap">' +
         '<div class="stage' + (opts.mini ? ' stage--mini' : '') + '">' +
-          '<video playsinline ' + (opts.mini ? 'muted loop ' : '') + '></video>' +
+          '<video playsinline preload="auto" ' + (opts.mini ? 'muted loop ' : '') + '></video>' +
           '<div class="stage__overlay-host" style="position:absolute;pointer-events:none;"></div>' +
           '<div class="glassbar">' +
             '<button class="tbtn" data-act="back" title="Previous frame (←)" type="button">' + SVG.back + '</button>' +
@@ -154,7 +154,13 @@
     container.querySelector('[data-act="back"]').addEventListener('click', function () { frameStep(-1); });
     container.querySelector('[data-act="fwd"]').addEventListener('click', function () { frameStep(1); });
     playBtn.addEventListener('click', function () {
-      if (video.paused) video.play(); else video.pause();
+      if (video.paused) {
+        selStopAt = null; // plain play ignores any selection stop point
+        var p = video.play();
+        if (p && p.catch) p.catch(function () {});
+      } else {
+        video.pause();
+      }
     });
     container.querySelector('.tvol').addEventListener('input', function () {
       video.volume = this.value / 100;
@@ -263,17 +269,22 @@
     }
 
     // ---------- selection playback ----------
-    var selWatcher = null;
+    // Stop-at-end is driven by 'timeupdate' (never by polling video.paused:
+    // play() is async, and polling while the play request is still pending
+    // misreads it as paused and cancels playback).
+    var selStopAt = null;
+    video.addEventListener('timeupdate', function () {
+      if (selStopAt !== null && video.currentTime >= selStopAt - 0.03) {
+        selStopAt = null;
+        video.pause();
+      }
+    });
+    video.addEventListener('pause', function () { selStopAt = null; });
     function playSelection() {
       video.currentTime = sel.start;
-      video.play();
-      clearInterval(selWatcher);
-      selWatcher = setInterval(function () {
-        if (video.currentTime >= sel.end - 0.03 || video.paused) {
-          video.pause();
-          clearInterval(selWatcher);
-        }
-      }, 40);
+      selStopAt = sel.end;
+      var p = video.play();
+      if (p && p.catch) p.catch(function () { selStopAt = null; });
     }
 
     return {
@@ -290,12 +301,13 @@
       syncOverlay: syncOverlay,
       destroy: function () {
         cancelAnimationFrame(raf);
-        clearInterval(selWatcher);
+        selStopAt = null;
         document.removeEventListener('keydown', onKey);
         window.removeEventListener('mousemove', onMove);
         window.removeEventListener('mouseup', onUp);
         window.removeEventListener('resize', syncOverlay);
         try { video.pause(); video.removeAttribute('src'); video.load(); } catch (e) {}
+        try { URL.revokeObjectURL(opts.url); } catch (e) {}
         container.innerHTML = '';
       }
     };
