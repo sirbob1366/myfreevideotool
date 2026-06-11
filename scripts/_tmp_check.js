@@ -1,0 +1,1 @@
+(function(){try{var t=localStorage.getItem('mfvt-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();

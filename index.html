@@ -89,6 +89,7 @@
   <!-- SCROLL NARRATIVE -->
   <div class="story">
     <section class="story-panel">
+      <canvas class="story3d" data-scene="shield" aria-hidden="true"></canvas>
       <div class="container">
         <div>
           <p class="eyebrow">The wedge</p>
@@ -106,6 +107,7 @@
     </section>
 
     <section class="story-panel">
+      <canvas class="story3d" data-scene="layers" aria-hidden="true"></canvas>
       <div class="container">
         <div>
           <p class="eyebrow">The editor</p>
@@ -125,6 +127,7 @@
     </section>
 
     <section class="story-panel">
+      <canvas class="story3d" data-scene="export" aria-hidden="true"></canvas>
       <div class="container">
         <div>
           <p class="eyebrow">The exit</p>
@@ -478,7 +481,10 @@
   function boot() {
     var s = document.createElement('script');
     s.src = '/vendor/three/three.min.js';
-    s.onload = init;
+    s.onload = function () {
+      init();
+      window.dispatchEvent(new Event('mfvt-three-ready')); // story scenes wait on this
+    };
     document.head.appendChild(s);
   }
   if ('requestIdleCallback' in window) requestIdleCallback(boot, { timeout: 1500 });
@@ -597,6 +603,171 @@
     renderer.render(scene, camera);
     requestAnimationFrame(loop);
   }
+})();
+</script>
+<script>
+/* STORY SCENES — three featherweight 3D vignettes behind the story panels,
+   each themed to its chapter. One shared Three.js load (signalled by the hero),
+   scenes built lazily on first sight, animated only while on screen,
+   DPR capped at 1.25, hidden on small screens, static under reduced motion. */
+(function () {
+  var canvases = document.querySelectorAll('.story3d');
+  if (!canvases.length) return;
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var AMBER = 0xffb443;
+
+  function whenThree(cb) {
+    if (window.THREE) return cb();
+    window.addEventListener('mfvt-three-ready', cb, { once: true });
+  }
+
+  function pts(n, gen, color, size, opacity) {
+    var pos = new Float32Array(n * 3);
+    for (var i = 0; i < n; i++) {
+      var p = gen();
+      pos[i * 3] = p[0]; pos[i * 3 + 1] = p[1]; pos[i * 3 + 2] = p[2];
+    }
+    var g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    return new THREE.Points(g, new THREE.PointsMaterial({
+      color: color, size: size, transparent: true, opacity: opacity,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    }));
+  }
+  function onSphere(rMin, rMax) {
+    var r = rMin + Math.random() * (rMax - rMin);
+    var th = Math.random() * Math.PI * 2;
+    var ph = Math.acos(2 * Math.random() - 1);
+    return [r * Math.sin(ph) * Math.cos(th), r * Math.sin(ph) * Math.sin(th), r * Math.cos(ph)];
+  }
+
+  var BUILDERS = {
+    // "Your video never uploads" — data swirling safely INSIDE a shield shell,
+    // grey strays kept outside.
+    shield: function (scene) {
+      var group = new THREE.Group();
+      var shell = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(3, 1)),
+        new THREE.LineBasicMaterial({ color: AMBER, transparent: true, opacity: 0.32 })
+      );
+      group.add(shell);
+      var inner = pts(260, function () { return onSphere(0.2, 2.5); }, AMBER, 0.08, 0.85);
+      group.add(inner);
+      var strays = pts(80, function () { return onSphere(4.6, 9); }, 0x8a8a95, 0.06, 0.3);
+      group.add(strays);
+      group.position.x = 2.6;
+      scene.add(group);
+      return function (t) {
+        shell.rotation.y = t * 0.1;
+        shell.rotation.x = Math.sin(t * 0.25) * 0.15;
+        inner.rotation.y = -t * 0.32;
+        inner.rotation.x = Math.sin(t * 0.2) * 0.3;
+        strays.rotation.y = t * 0.04;
+      };
+    },
+    // "Every tool. One timeline." — a breathing stack of layer planes.
+    layers: function (scene) {
+      var group = new THREE.Group();
+      var edge = new THREE.EdgesGeometry(new THREE.PlaneGeometry(4.6, 2.6));
+      var planes = [];
+      for (var i = 0; i < 5; i++) {
+        var ln = new THREE.LineSegments(edge, new THREE.LineBasicMaterial({
+          color: AMBER, transparent: true, opacity: 0.55 - i * 0.09
+        }));
+        ln.position.set(i * 0.28 - 0.6, i * 0.34 - 0.7, -i * 0.9);
+        planes.push(ln);
+        group.add(ln);
+      }
+      var dust = pts(110, function () {
+        return [(Math.random() - 0.5) * 6, (Math.random() - 0.5) * 4, -Math.random() * 4.5];
+      }, AMBER, 0.06, 0.45);
+      group.add(dust);
+      group.position.x = 2.4;
+      group.rotation.set(-0.22, -0.38, 0.05);
+      scene.add(group);
+      return function (t) {
+        group.rotation.y = -0.38 + Math.sin(t * 0.4) * 0.12;
+        for (var i = 0; i < planes.length; i++) {
+          planes[i].position.y = i * 0.34 - 0.7 + Math.sin(t * 0.8 + i) * 0.07;
+        }
+        dust.rotation.z = t * 0.05;
+      };
+    },
+    // "Export without ransom" — a pristine golden knot, no strings attached.
+    export: function (scene) {
+      var knot = new THREE.Mesh(
+        new THREE.TorusKnotGeometry(1.7, 0.5, 110, 14),
+        new THREE.MeshBasicMaterial({ color: AMBER, wireframe: true, transparent: true, opacity: 0.45 })
+      );
+      knot.position.x = 2.7;
+      scene.add(knot);
+      var glints = pts(140, function () { return onSphere(2.8, 5); }, AMBER, 0.07, 0.65);
+      glints.position.x = 2.7;
+      scene.add(glints);
+      return function (t) {
+        knot.rotation.y = t * 0.25;
+        knot.rotation.x = t * 0.17;
+        glints.rotation.y = -t * 0.1;
+        glints.rotation.z = t * 0.05;
+      };
+    }
+  };
+
+  canvases.forEach(function (canvas) {
+    var type = canvas.dataset.scene;
+    if (!type) return;
+    var st = { built: false, running: false, t: Math.random() * 10 };
+
+    function build() {
+      if (st.built || !BUILDERS[type]) return;
+      try {
+        st.renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      } catch (e) { canvas.remove(); return; }
+      st.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+      st.scene = new THREE.Scene();
+      st.camera = new THREE.PerspectiveCamera(55, 1, 0.1, 60);
+      st.camera.position.set(0, 0, 9);
+      st.tick = BUILDERS[type](st.scene);
+      st.built = true;
+      resize();
+      if (reduced) { st.tick(st.t); st.renderer.render(st.scene, st.camera); }
+    }
+    function resize() {
+      if (!st.built) return;
+      var r = canvas.parentElement.getBoundingClientRect();
+      st.renderer.setSize(r.width, r.height, false);
+      st.camera.aspect = r.width / Math.max(1, r.height);
+      st.camera.updateProjectionMatrix();
+    }
+    addEventListener('resize', resize, { passive: true });
+
+    function loop() {
+      if (!st.running) return;
+      st.t += 0.016;
+      st.tick(st.t);
+      st.renderer.render(st.scene, st.camera);
+      requestAnimationFrame(loop);
+    }
+    function start() {
+      if (reduced || st.running || document.hidden || !st.built) return;
+      st.running = true;
+      requestAnimationFrame(loop);
+    }
+
+    new IntersectionObserver(function (en) {
+      if (en[0].isIntersecting) {
+        whenThree(function () { build(); start(); });
+      } else {
+        st.running = false;
+      }
+    }, { threshold: 0.05 }).observe(canvas);
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { st.running = false; return; }
+      var r = canvas.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < innerHeight) start();
+    });
+  });
 })();
 </script>
 </body>

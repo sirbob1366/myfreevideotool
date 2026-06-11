@@ -246,8 +246,15 @@ code { font-family: var(--mono); font-size: 0.88em; background: var(--accent-tin
   min-height: 92vh;
   display: flex; align-items: center;
   border-top: 1px solid var(--border);
+  position: relative; overflow: hidden;
 }
-.story-panel .container { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+.story3d {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none; display: block; opacity: 0.5;
+}
+[data-theme="light"] .story3d { opacity: 0.2; }
+@media (max-width: 700px) { .story3d { display: none; } }
+.story-panel .container { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; position: relative; z-index: 1; }
 @media (max-width: 860px) { .story-panel .container { grid-template-columns: 1fr; } .story-panel { min-height: auto; padding: 64px 0; } }
 .story-panel h2 { font-size: clamp(2rem, 4.6vw, 3.6rem); font-weight: 800; letter-spacing: -0.045em; line-height: 0.95; margin: 0 0 18px; }
 .story-panel p { color: var(--ink-2); font-size: 1.05rem; max-width: 480px; }
