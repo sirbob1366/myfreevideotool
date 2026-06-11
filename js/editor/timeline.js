@@ -36,6 +36,58 @@
       T.scrollEl.scrollLeft = before * T.pxPerSec - (e.clientX - T.scrollEl.getBoundingClientRect().left);
     }, { passive: false });
 
+    // ---- drop media from the bin directly onto a lane at a time ----
+    function isMediaDrag(e) {
+      return e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types, 'text/mfvt-media') >= 0;
+    }
+    function dropPos(e) {
+      var ir = T.innerEl.getBoundingClientRect();
+      var t = Math.max(0, (e.clientX - ir.left) / T.pxPerSec);
+      var tr = T.tracksEl.getBoundingClientRect();
+      var track = Math.max(0, Math.min(S.trackCount() - 1, Math.floor((e.clientY - tr.top) / 52)));
+      return { t: applySnap(t, null, e.altKey).t, track: track };
+    }
+    function clearDropHints() {
+      showGuide(null);
+      Array.prototype.forEach.call(T.tracksEl.children, function (tr) { tr.classList.remove('droptarget'); });
+    }
+    T.scrollEl.addEventListener('dragover', function (e) {
+      if (!isMediaDrag(e)) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      var pos = dropPos(e);
+      showGuide(pos.t);
+      Array.prototype.forEach.call(T.tracksEl.children, function (tr, i) {
+        tr.classList.toggle('droptarget', i === pos.track);
+      });
+    });
+    T.scrollEl.addEventListener('dragleave', function (e) {
+      if (e.target === T.scrollEl) clearDropHints();
+    });
+    T.scrollEl.addEventListener('drop', function (e) {
+      if (!isMediaDrag(e)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      clearDropHints();
+      var id = e.dataTransfer.getData('text/mfvt-media');
+      var m = S.media[id];
+      if (!m) return;
+      var pos = dropPos(e);
+      S.commit('drop media');
+      var l = S.defaultLayer(m.kind);
+      l.name = m.name;
+      l.srcId = m.id;
+      if (m.kind !== 'image') l.duration = m.duration || 5;
+      if (m.kind === 'video') l.scale = Math.min(S.project.canvas.w / m.w, S.project.canvas.h / m.h);
+      if (m.kind === 'image') l.scale = Math.min(S.project.canvas.w / m.w, S.project.canvas.h / m.h) * 0.5;
+      l.start = pos.t;
+      l.track = pos.track;
+      S.project.layers.push(l);
+      S.emit('layers');
+      S.select(l.id);
+      if (global.EdUI) global.EdUI.toast('Placed ' + m.name + ' at ' + pos.t.toFixed(1) + 's');
+    });
+
     S.on('layers', T.rebuild);
     S.on('project', T.rebuild);
     S.on('select', T.refreshSelection);

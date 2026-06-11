@@ -30,6 +30,36 @@
   };
 
   // ---------- media bin ----------
+  function binThumb(m, thumbEl) {
+    if (m.thumb) { thumbEl.style.backgroundImage = 'url(' + m.thumb + ')'; thumbEl.textContent = ''; return; }
+    if (m.kind === 'image') {
+      m.thumb = m.url;
+      thumbEl.style.backgroundImage = 'url(' + m.url + ')';
+      thumbEl.textContent = '';
+      return;
+    }
+    if (m.kind !== 'video') return;
+    var v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'metadata'; v.src = m.url;
+    v.addEventListener('loadeddata', function () {
+      try { v.currentTime = Math.min(0.5, (m.duration || 1) / 2); } catch (e) {}
+    }, { once: true });
+    v.addEventListener('seeked', function () {
+      try {
+        var c = document.createElement('canvas');
+        c.width = 92; c.height = 56;
+        var g = c.getContext('2d');
+        var s = Math.max(92 / v.videoWidth, 56 / v.videoHeight);
+        g.drawImage(v, (92 - v.videoWidth * s) / 2, (56 - v.videoHeight * s) / 2, v.videoWidth * s, v.videoHeight * s);
+        m.thumb = c.toDataURL('image/jpeg', 0.6);
+        thumbEl.style.backgroundImage = 'url(' + m.thumb + ')';
+        thumbEl.textContent = '';
+      } catch (e) {}
+      v.removeAttribute('src');
+      try { v.load(); } catch (e) {}
+    }, { once: true });
+  }
+
   function renderMedia() {
     var bin = $('#mediaItems');
     bin.innerHTML = '';
@@ -40,7 +70,18 @@
       row.innerHTML = '<div class="mthumb">' + icon + '</div><span class="mname"></span><span class="mdur">' +
         (m.duration ? fmtT(m.duration) : '') + '</span>';
       row.querySelector('.mname').textContent = m.name;
-      row.title = 'Click to add to timeline at the playhead';
+      row.title = 'Drag onto the timeline or canvas — or click to add at the playhead';
+      binThumb(m, row.querySelector('.mthumb'));
+
+      // drag onto timeline / canvas
+      row.draggable = true;
+      row.addEventListener('dragstart', function (e) {
+        e.dataTransfer.setData('text/mfvt-media', m.id);
+        e.dataTransfer.effectAllowed = 'copy';
+        row.classList.add('dragging');
+      });
+      row.addEventListener('dragend', function () { row.classList.remove('dragging'); });
+
       row.addEventListener('click', function () {
         S.addLayer(S.layerFromMedia(m));
         U.toast('Added ' + m.name);
@@ -247,7 +288,9 @@
         prow('Rotation', slider('pRot', -180, 180, 1, l.rotation), 'pRotv') +
         prow('Opacity', slider('pOp', 0, 1, 0.01, l.opacity), 'pOpv') +
         prow('Blend', '<select id="pBlend"><option value="source-over"' + sel(l.blend, 'source-over') + '>Normal</option><option value="multiply"' + sel(l.blend, 'multiply') + '>Multiply</option><option value="screen"' + sel(l.blend, 'screen') + '>Screen</option></select>') +
-        (l.type === 'video' || l.type === 'image' ? '<div class="chip-row"><button id="pFlipH" type="button"' + (l.flipH ? ' class="active"' : '') + '>Flip H</button><button id="pFlipV" type="button"' + (l.flipV ? ' class="active"' : '') + '>Flip V</button></div>' : '') +
+        '<div class="chip-row"><button id="pRotL" type="button" title="Rotate 90° counter-clockwise">↺ 90°</button><button id="pRotR" type="button" title="Rotate 90° clockwise">↻ 90°</button>' +
+        (l.type === 'video' || l.type === 'image' ? '<button id="pFlipH" type="button"' + (l.flipH ? ' class="active"' : '') + '>⇋ Flip H</button><button id="pFlipV" type="button"' + (l.flipV ? ' class="active"' : '') + '>⇅ Flip V</button>' : '') +
+        '</div>' +
         '</div>';
     }
 
@@ -333,6 +376,9 @@
     bindSlide('pRot', function (v) { l.rotation = v; renderSelBox(); });
     bindSlide('pOp', function (v) { l.opacity = v; });
     bind('pBlend', 'change', function () { S.commit('blend'); l.blend = this.value; C.render(S.time); });
+    function normDeg(r) { return ((r + 180) % 360 + 360) % 360 - 180; }
+    bind('pRotL', 'click', function () { S.commit('rotate'); l.rotation = normDeg(l.rotation - 90); C.render(S.time); renderProps(); renderSelBox(); });
+    bind('pRotR', 'click', function () { S.commit('rotate'); l.rotation = normDeg(l.rotation + 90); C.render(S.time); renderProps(); renderSelBox(); });
     bind('pFlipH', 'click', function () { S.commit('flip'); l.flipH = !l.flipH; C.render(S.time); renderProps(); });
     bind('pFlipV', 'click', function () { S.commit('flip'); l.flipV = !l.flipV; C.render(S.time); renderProps(); });
 
@@ -669,8 +715,14 @@
       if (fileInput.files.length) importFiles(fileInput.files);
       fileInput.value = '';
     });
+    function isFileDrag(e) {
+      return e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types, 'Files') >= 0;
+    }
     ['dragenter', 'dragover'].forEach(function (evt) {
-      document.addEventListener(evt, function (e) { e.preventDefault(); addBtn.classList.add('dragover'); });
+      document.addEventListener(evt, function (e) {
+        e.preventDefault();
+        if (isFileDrag(e)) addBtn.classList.add('dragover');
+      });
     });
     ['dragleave', 'drop'].forEach(function (evt) {
       document.addEventListener(evt, function (e) {
@@ -682,6 +734,36 @@
       e.preventDefault();
       if (e.dataTransfer && e.dataTransfer.files.length) importFiles(e.dataTransfer.files);
     });
+
+    // drop a media-bin item straight onto the canvas → placed at the playhead
+    var pw = document.querySelector('.ed-preview-wrap');
+    pw.addEventListener('dragover', function (e) {
+      if (Array.prototype.indexOf.call(e.dataTransfer.types, 'text/mfvt-media') < 0) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      pw.classList.add('dropready');
+    });
+    pw.addEventListener('dragleave', function () { pw.classList.remove('dropready'); });
+    pw.addEventListener('drop', function (e) {
+      pw.classList.remove('dropready');
+      var id = e.dataTransfer.getData('text/mfvt-media');
+      if (!id) return; // file drops bubble to the document import handler
+      e.preventDefault();
+      e.stopPropagation();
+      var m = S.media[id];
+      if (m) { S.addLayer(S.layerFromMedia(m)); U.toast('Added ' + m.name + ' at the playhead'); }
+    });
+
+    // empty-state overlay
+    function refreshEmpty() {
+      var empty = document.getElementById('edEmpty');
+      if (empty) empty.style.display = S.project && S.project.layers.length ? 'none' : '';
+    }
+    var emptyAdd = document.getElementById('emptyAdd');
+    if (emptyAdd) emptyAdd.addEventListener('click', function () { fileInput.click(); });
+    S.on('layers', refreshEmpty);
+    S.on('project', refreshEmpty);
+    refreshEmpty();
 
     // add layer buttons
     $('#addText').addEventListener('click', function () { S.addLayer(S.defaultLayer('text')); });

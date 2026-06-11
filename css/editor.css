@@ -95,9 +95,11 @@ button { font-family: var(--e-font); }
 .media-add:hover, .media-add.dragover { color: var(--e-amber); border-color: var(--e-amber); }
 .media-item {
   display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: 7px;
-  cursor: pointer; margin-top: 6px; border: 1px solid transparent;
+  cursor: grab; margin-top: 6px; border: 1px solid transparent;
 }
-.media-item:hover { background: var(--e-panel2); }
+.media-item:hover { background: var(--e-panel2); border-color: var(--e-line2); }
+.media-item.dragging { opacity: 0.45; }
+.media-item:active { cursor: grabbing; }
 .media-item .mthumb {
   width: 46px; height: 28px; border-radius: 4px; background: #000 center/cover; flex: none;
   display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--e-ink2);
@@ -350,6 +352,30 @@ button { font-family: var(--e-font); }
 }
 .ed-toast.open { display: block; }
 .ed-toast.err { border-color: var(--e-red); color: var(--e-red); }
+
+/* drop targets + empty state */
+.tl-track.droptarget { background: var(--e-amber-dim) !important; }
+.ed-preview-wrap.dropready .ed-canvas-holder { outline: 2px dashed var(--e-amber); outline-offset: 6px; }
+
+.ed-empty {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  text-align: center; pointer-events: auto;
+}
+.ed-empty p { margin: 0; font-size: 13px; color: var(--e-ink); line-height: 1.7; }
+.ed-empty p span { color: var(--e-ink2); font-size: 11.5px; }
+.ed-empty__ring {
+  width: 76px; height: 76px; border-radius: 50%;
+  border: 1.6px dashed var(--e-amber);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--e-amber);
+  animation: empty-pulse 2.6s ease-in-out infinite;
+}
+@keyframes empty-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 180, 67, 0.18); }
+  50% { box-shadow: 0 0 0 16px rgba(255, 180, 67, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .ed-empty__ring { animation: none; } }
 
 /* mobile */
 @media (max-width: 860px) {

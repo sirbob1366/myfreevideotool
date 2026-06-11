@@ -62,6 +62,8 @@
 <main>
   <!-- HERO -->
   <section class="hero">
+    <canvas id="hero3d" aria-hidden="true"></canvas>
+    <div class="hero-vignette" aria-hidden="true"></div>
     <div class="container">
       <div class="hero-badge"><span class="pulse"></span>100% ON-DEVICE · 0 UPLOADS · 0 WATERMARKS</div>
       <h1>Edit video like<br>it's <span class="serif">yours.</span></h1>
@@ -461,6 +463,140 @@
       });
     }, { threshold: 0.3 }).observe(fan);
   } else if (fan) fan.classList.add('visible');
+})();
+</script>
+<script>
+/* HERO 3D — an endless camera dolly through a helix of film frames, lit amber.
+   Three.js is self-hosted (/vendor/three/) so it loads under our COEP isolation.
+   Lazy-loaded after idle; pauses offscreen/hidden; static single frame under
+   prefers-reduced-motion; skipped entirely if WebGL is unavailable. */
+(function () {
+  var canvas = document.getElementById('hero3d');
+  if (!canvas) return;
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function boot() {
+    var s = document.createElement('script');
+    s.src = '/vendor/three/three.min.js';
+    s.onload = init;
+    document.head.appendChild(s);
+  }
+  if ('requestIdleCallback' in window) requestIdleCallback(boot, { timeout: 1500 });
+  else setTimeout(boot, 300);
+
+  var renderer, scene, camera, frames, points, tri;
+  var running = false, visible = true;
+  var mouse = { x: 0, y: 0 }, target = { x: 0, y: 0 };
+  var t = 0;
+
+  function init() {
+    if (!window.THREE) return;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    } catch (e) { return; }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+
+    scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0b0b0e, 0.05);
+    camera = new THREE.PerspectiveCamera(58, 1, 0.1, 120);
+    camera.position.set(0, 0, 9);
+
+    // helix of film frames receding into the dark
+    frames = new THREE.Group();
+    var geo = new THREE.BoxGeometry(2.7, 1.55, 0.07);
+    var edges = new THREE.EdgesGeometry(geo);
+    for (var i = 0; i < 42; i++) {
+      var mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x141419, transparent: true, opacity: 0.92 }));
+      var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffb443, transparent: true, opacity: 0.5 }));
+      mesh.add(line);
+      var a = i * 0.52;
+      mesh.position.set(Math.cos(a) * 4.6, Math.sin(a) * 2.4, -i * 1.25 + 2);
+      mesh.rotation.set((Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 0.8, (Math.random() - 0.5) * 0.25);
+      mesh.userData.spin = (Math.random() - 0.5) * 0.0022;
+      frames.add(mesh);
+    }
+    scene.add(frames);
+
+    // golden dust
+    var N = 550, pos = new Float32Array(N * 3);
+    for (var p = 0; p < N; p++) {
+      pos[p * 3] = (Math.random() - 0.5) * 36;
+      pos[p * 3 + 1] = (Math.random() - 0.5) * 20;
+      pos[p * 3 + 2] = -Math.random() * 55 + 6;
+    }
+    var pg = new THREE.BufferGeometry();
+    pg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    points = new THREE.Points(pg, new THREE.PointsMaterial({
+      color: 0xffb443, size: 0.07, transparent: true, opacity: 0.7,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    }));
+    scene.add(points);
+
+    // wireframe play-mark, slowly tumbling
+    var shape = new THREE.Shape();
+    shape.moveTo(-0.85, -1.05); shape.lineTo(-0.85, 1.05); shape.lineTo(1.35, 0); shape.closePath();
+    tri = new THREE.Mesh(
+      new THREE.ExtrudeGeometry(shape, { depth: 0.45, bevelEnabled: false }),
+      new THREE.MeshBasicMaterial({ color: 0xffb443, wireframe: true, transparent: true, opacity: 0.85 })
+    );
+    tri.position.set(3.6, 0.6, 3.2);
+    tri.scale.setScalar(1.15);
+    scene.add(tri);
+
+    resize();
+    addEventListener('resize', resize, { passive: true });
+    addEventListener('mousemove', function (e) {
+      target.x = (e.clientX / innerWidth - 0.5) * 2;
+      target.y = (e.clientY / innerHeight - 0.5) * 2;
+    }, { passive: true });
+
+    if (reduced) { renderer.render(scene, camera); return; }
+    new IntersectionObserver(function (en) { visible = en[0].isIntersecting; toggle(); }, { threshold: 0.02 }).observe(canvas);
+    document.addEventListener('visibilitychange', toggle);
+    running = true;
+    requestAnimationFrame(loop);
+  }
+
+  function toggle() {
+    var want = visible && !document.hidden;
+    if (want && !running) { running = true; requestAnimationFrame(loop); }
+    if (!want) running = false;
+  }
+
+  function resize() {
+    if (!renderer) return;
+    var r = canvas.parentElement.getBoundingClientRect();
+    renderer.setSize(r.width, r.height, false);
+    camera.aspect = r.width / Math.max(1, r.height);
+    camera.updateProjectionMatrix();
+  }
+
+  function loop() {
+    if (!running) return;
+    t += 0.016;
+    mouse.x += (target.x - mouse.x) * 0.05;
+    mouse.y += (target.y - mouse.y) * 0.05;
+
+    frames.rotation.z = t * 0.04;
+    for (var i = 0; i < frames.children.length; i++) {
+      var m = frames.children[i];
+      m.rotation.y += m.userData.spin;
+      m.position.z += 0.012;                    // frames drift toward the lens…
+      if (m.position.z > 7) m.position.z -= 52; // …and respawn deep in the fog
+    }
+    tri.rotation.y = t * 0.5;
+    tri.rotation.x = Math.sin(t * 0.4) * 0.18;
+    points.rotation.y = t * 0.015;
+
+    var scroll = Math.min(600, scrollY || 0);
+    camera.position.x = mouse.x * 0.9;
+    camera.position.y = -mouse.y * 0.6 - scroll * 0.0012;
+    camera.position.z = 9 - scroll * 0.004;     // scrolling dollies you into the helix
+    camera.lookAt(0.6, 0, -4);
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
 })();
 </script>
 </body>
