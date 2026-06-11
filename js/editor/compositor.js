@@ -32,13 +32,21 @@
 
   C.resize = function () {
     var p = S.project;
-    var maxDim = C.exporting ? Math.max(p.canvas.w, p.canvas.h) : 1280;
-    var maxShort = C.exporting ? Math.max(p.canvas.w, p.canvas.h) : 720;
-    // preview: cap the short side at 720
+    // internal resolution: cap the short side at 720 for preview
     var shortSide = Math.min(p.canvas.w, p.canvas.h);
-    C.scale = C.exporting ? 1 : Math.min(1, maxShort / shortSide);
+    C.scale = Math.min(1, 720 / shortSide);
     C.canvas.width = Math.round(p.canvas.w * C.scale);
     C.canvas.height = Math.round(p.canvas.h * C.scale);
+    // display size: fit inside the preview area, preserving aspect — without
+    // this a 9:16 canvas renders at raw pixel size and bleeds behind the UI
+    var wrap = C.canvas.closest('.ed-preview-wrap');
+    if (wrap) {
+      var availW = Math.max(120, wrap.clientWidth - 36);
+      var availH = Math.max(120, wrap.clientHeight - 36);
+      var fit = Math.min(availW / p.canvas.w, availH / p.canvas.h);
+      C.canvas.style.width = Math.floor(p.canvas.w * fit) + 'px';
+      C.canvas.style.height = Math.floor(p.canvas.h * fit) + 'px';
+    }
     C.render(S.time);
   };
 
@@ -53,6 +61,38 @@
     return C.audioCtx;
   };
 
+  // 2s decaying-noise impulse for the per-layer convolution reverb
+  var _impulse = null;
+  function impulse(ctx) {
+    if (_impulse) return _impulse;
+    var len = ctx.sampleRate * 2;
+    _impulse = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (var c = 0; c < 2; c++) {
+      var d = _impulse.getChannelData(c);
+      for (var i = 0; i < len; i++) {
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.4);
+      }
+    }
+    return _impulse;
+  }
+
+  // Per-layer audio chain: source ─ EQ(low/mid/high) ─ pan ─┬─ dry ──┬─ volume ─ master
+  //                                                          └─ verb ─┘
+  // Exports tap the same graph, so EQ/pan/reverb are baked into the output.
+  C.chains = {};
+  C.refreshAudio = function (l) {
+    var ch = C.chains[l.id];
+    if (!ch) return;
+    var eq = l.eq || { low: 0, mid: 0, high: 0 };
+    ch.low.gain.value = eq.low;
+    ch.mid.gain.value = eq.mid;
+    ch.high.gain.value = eq.high;
+    if (ch.panner) ch.panner.pan.value = l.pan || 0;
+    var r = l.reverb || 0;
+    ch.wet.gain.value = r * 0.9;
+    ch.dry.gain.value = 1 - r * 0.35;
+  };
+
   function gainFor(l, m) {
     var ctx = C.ensureAudio();
     var el = m.kind === 'video' ? m.videoEl : m.audioEl;
@@ -64,13 +104,30 @@
     }
     if (!C.gains[l.id]) {
       // A media element can back several layers (e.g. after a split): the source
-      // fans out to one gain per layer — never disconnect previous connections,
-      // inactive layers simply have their gain driven to 0.
-      var g = ctx.createGain();
-      C.sources[m.id].connect(g);
-      g.connect(C.master);
-      if (C.exportDest) g.connect(C.exportDest);
-      C.gains[l.id] = g;
+      // fans out to one chain per layer — never disconnect previous connections,
+      // inactive layers simply have their volume driven to 0.
+      var low = ctx.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 200;
+      var mid = ctx.createBiquadFilter(); mid.type = 'peaking'; mid.frequency.value = 1000; mid.Q.value = 0.9;
+      var high = ctx.createBiquadFilter(); high.type = 'highshelf'; high.frequency.value = 4200;
+      var panner = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+      var dry = ctx.createGain();
+      var wet = ctx.createGain(); wet.gain.value = 0;
+      var conv = ctx.createConvolver(); conv.buffer = impulse(ctx);
+      var out = ctx.createGain();
+
+      C.sources[m.id].connect(low);
+      low.connect(mid);
+      mid.connect(high);
+      var tail = high;
+      if (panner) { high.connect(panner); tail = panner; }
+      tail.connect(dry); dry.connect(out);
+      tail.connect(conv); conv.connect(wet); wet.connect(out);
+      out.connect(C.master);
+      if (C.exportDest) out.connect(C.exportDest);
+
+      C.chains[l.id] = { low: low, mid: mid, high: high, panner: panner, dry: dry, wet: wet, out: out };
+      C.gains[l.id] = out; // export-dest wiring iterates C.gains
+      C.refreshAudio(l);
     }
     return C.gains[l.id];
   }

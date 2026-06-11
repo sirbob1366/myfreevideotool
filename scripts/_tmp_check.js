@@ -1,1 +1,9 @@
-(function(){try{var t=localStorage.getItem('mfvt-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+
+(function () {
+  'use strict';
+  var E = window.VideoEngine;
+  var queue = []; // {file, meta, row, status}
+  var fmt = 'mp4';
+  var running = false;
+
+  var d

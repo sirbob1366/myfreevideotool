@@ -11,9 +11,9 @@
   --e-line2: rgba(255, 255, 255, 0.12);
   --e-ink: #e8e8ec;
   --e-ink2: #8b8b96;
-  --e-amber: #ffb443;
-  --e-amber-dim: rgba(255, 180, 67, 0.16);
-  --e-glow: 0 0 12px rgba(255, 180, 67, 0.35);
+  --e-amber: #e63b47;
+  --e-amber-dim: rgba(230, 59, 71, 0.16);
+  --e-glow: 0 0 12px rgba(230, 59, 71, 0.35);
   --e-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
   --e-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --e-red: #ff5d5d;
@@ -67,7 +67,7 @@ button { font-family: var(--e-font); }
 .ed-btn:hover { border-color: var(--e-ink2); }
 .ed-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .ed-btn--amber {
-  background: var(--e-amber); border-color: var(--e-amber); color: #1a1206; font-weight: 750;
+  background: var(--e-amber); border-color: var(--e-amber); color: #ffffff; font-weight: 750;
 }
 .ed-btn--amber:hover { box-shadow: var(--e-glow); border-color: var(--e-amber); }
 .ed-btn--sm { padding: 4px 9px; font-size: 11px; border-radius: 6px; }
@@ -132,7 +132,7 @@ button { font-family: var(--e-font); }
 .ed-center { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .ed-preview-wrap {
   flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
-  padding: 18px; position: relative;
+  padding: 18px; position: relative; overflow: hidden;
   background:
     radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px) 0 0 / 20px 20px,
     linear-gradient(var(--e-bg), var(--e-bg2));
@@ -145,7 +145,7 @@ button { font-family: var(--e-font); }
 .sel-box { position: absolute; border: 1.4px solid var(--e-amber); pointer-events: auto; cursor: move; touch-action: none; }
 .sel-box .h {
   position: absolute; width: 11px; height: 11px; border-radius: 50%;
-  background: var(--e-amber); border: 2px solid #1a1206; touch-action: none;
+  background: var(--e-amber); border: 2px solid #ffffff; touch-action: none;
 }
 .sel-box .h.nw { top: -6px; left: -6px; cursor: nwse-resize; }
 .sel-box .h.ne { top: -6px; right: -6px; cursor: nesw-resize; }
@@ -167,7 +167,7 @@ button { font-family: var(--e-font); }
 }
 .t-btn:hover { background: var(--e-panel2); }
 .t-btn svg { width: 15px; height: 15px; }
-.t-btn--play { background: var(--e-amber); color: #1a1206; width: 38px; height: 38px; border-radius: 9px; }
+.t-btn--play { background: var(--e-amber); color: #ffffff; width: 38px; height: 38px; border-radius: 9px; }
 .t-btn--play:hover { box-shadow: var(--e-glow); background: var(--e-amber); }
 .t-time {
   font-family: var(--e-mono); font-variant-numeric: tabular-nums; font-size: 12.5px;
@@ -372,8 +372,8 @@ button { font-family: var(--e-font); }
   animation: empty-pulse 2.6s ease-in-out infinite;
 }
 @keyframes empty-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 180, 67, 0.18); }
-  50% { box-shadow: 0 0 0 16px rgba(255, 180, 67, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(230, 59, 71, 0.18); }
+  50% { box-shadow: 0 0 0 16px rgba(230, 59, 71, 0); }
 }
 @media (prefers-reduced-motion: reduce) { .ed-empty__ring { animation: none; } }
 

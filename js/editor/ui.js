@@ -303,11 +303,28 @@
       '</div>';
 
     if (isAV) {
+      // layers saved before the audio tools existed lack these fields
+      l.pan = l.pan || 0;
+      l.eq = l.eq || { low: 0, mid: 0, high: 0 };
+      l.reverb = l.reverb || 0;
       html += '<div class="prop-sec"><h4>Audio &amp; speed</h4>' +
         prow('Volume', slider('pVol', 0, 2, 0.01, l.volume), 'pVolv') +
+        prow('Pan', slider('pPan', -1, 1, 0.05, l.pan), 'pPanv') +
         '<div class="chip-row"><button id="pMute" type="button"' + (l.muted ? ' class="active"' : '') + '>Mute</button></div>' +
         prow('Speed', slider('pSpeed', 0.25, 4, 0.05, l.speed), 'pSpeedv') +
         '<div class="prow"><label></label><label style="width:auto;display:flex;gap:6px;align-items:center"><input type="checkbox" id="pPitch"' + (l.pitchCorrect ? ' checked' : '') + '> pitch-corrected</label></div>' +
+        '</div>';
+      html += '<div class="prop-sec"><h4>EQ &amp; effects</h4>' +
+        '<div class="chip-row" id="pEqPresets" style="margin-bottom:7px">' +
+        '<button data-eq="flat" type="button">Flat</button>' +
+        '<button data-eq="bass" type="button">Bass boost</button>' +
+        '<button data-eq="voice" type="button">Voice</button>' +
+        '<button data-eq="bright" type="button">Bright</button>' +
+        '</div>' +
+        prow('Bass', slider('pEqL', -15, 15, 1, l.eq.low), 'pEqLv') +
+        prow('Mids', slider('pEqM', -12, 12, 1, l.eq.mid), 'pEqMv') +
+        prow('Treble', slider('pEqH', -15, 15, 1, l.eq.high), 'pEqHv') +
+        prow('Reverb', slider('pRev', 0, 1, 0.02, l.reverb), 'pRevv') +
         '</div>';
     }
 
@@ -389,6 +406,21 @@
     bindSlide('pAdur', function (v) { l.animDur = v; });
 
     bindSlide('pVol', function (v) { l.volume = v; });
+    bindSlide('pPan', function (v) { l.pan = v; C.refreshAudio(l); });
+    bindSlide('pEqL', function (v) { l.eq.low = v; C.refreshAudio(l); });
+    bindSlide('pEqM', function (v) { l.eq.mid = v; C.refreshAudio(l); });
+    bindSlide('pEqH', function (v) { l.eq.high = v; C.refreshAudio(l); });
+    bindSlide('pRev', function (v) { l.reverb = v; C.refreshAudio(l); });
+    var EQ_PRESETS = { flat: [0, 0, 0], bass: [9, 1, 2], voice: [-3, 4, 3], bright: [0, 1, 7] };
+    var eqPresets = $('#pEqPresets');
+    if (eqPresets) eqPresets.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b || !EQ_PRESETS[b.dataset.eq]) return;
+      S.commit('eq preset');
+      var v = EQ_PRESETS[b.dataset.eq];
+      l.eq = { low: v[0], mid: v[1], high: v[2] };
+      C.refreshAudio(l);
+      renderProps();
+    });
     bind('pMute', 'click', function () { S.commit('mute'); l.muted = !l.muted; renderProps(); });
     bindSlide('pSpeed', function (v) {
       // keep media coverage valid: clamp duration after speed change.

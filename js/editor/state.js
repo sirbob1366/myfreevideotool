@@ -74,6 +74,7 @@
       fadeIn: 0, fadeOut: 0,
       animIn: 'none', animOut: 'none', animDur: 0.5,
       volume: 1, muted: false, speed: 1, pitchCorrect: true,
+      pan: 0, eq: { low: 0, mid: 0, high: 0 }, reverb: 0,
       srcId: null, crop: { l: 0, r: 0, t: 0, b: 0 }, flipH: false, flipV: false,
       filters: { brightness: 1, contrast: 1, saturate: 1, temperature: 0 }, fpreset: 'none',
       chroma: { enabled: false, color: [0, 255, 0], similarity: 0.32, smoothness: 0.1 },
